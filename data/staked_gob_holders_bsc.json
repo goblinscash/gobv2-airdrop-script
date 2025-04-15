@@ -1,0 +1,37 @@
+[
+  {
+    "address": "0x63a7367bc9727e8b81dad797aa1a265ec8f5ac56",
+    "balance": "4578374490764",
+    "isContract": false
+  },
+  {
+    "address": "0xbd30403521f17504a2ead195bf8d31ca518a4036",
+    "balance": "454257100000",
+    "isContract": false
+  },
+  {
+    "address": "0x647eaf826c6b7171c4ca1efb59c624aaf2553ce1",
+    "balance": "233521985062",
+    "isContract": false
+  },
+  {
+    "address": "0x64da84b4e73a9189521198c6abca617e30644fcf",
+    "balance": "200989305667",
+    "isContract": false
+  },
+  {
+    "address": "0x738281f75e9bcb12ba1b9cf5e430a084a0c0b14b",
+    "balance": "184642526199",
+    "isContract": false
+  },
+  {
+    "address": "0xe989ea790938011e9d421eb2734a4bf9e89c54cd",
+    "balance": "130719758157",
+    "isContract": false
+  },
+  {
+    "address": "0x6eed19b17ab56b7c5e0a5a5843068a14ab382152",
+    "balance": "991280964",
+    "isContract": false
+  }
+]

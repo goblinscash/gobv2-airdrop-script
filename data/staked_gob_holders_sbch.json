@@ -1,0 +1,97 @@
+[
+  {
+    "address": "0x738281f75e9bcb12ba1b9cf5e430a084a0c0b14b",
+    "balance": "1983545340723",
+    "isContract": false
+  },
+  {
+    "address": "0x68df44377cb552b6587f24859016daa0dd5036a6",
+    "balance": "1848517855394",
+    "isContract": false
+  },
+  {
+    "address": "0x5e144519f094d7c73b54777512a417122068644f",
+    "balance": "1161528587717",
+    "isContract": false
+  },
+  {
+    "address": "0x51eb7c5462ebbadab25134d6907ab0ab1b0d2022",
+    "balance": "763576458044",
+    "isContract": false
+  },
+  {
+    "address": "0x90815713b61edb3c5c53e309b32262ccc633ef34",
+    "balance": "582688422762",
+    "isContract": false
+  },
+  {
+    "address": "0x37fe2c3f412f15ff9116f2ccf78f2a34c57ee108",
+    "balance": "133041534638",
+    "isContract": false
+  },
+  {
+    "address": "0x0bb67ddaf9cdd93af35d698f9fc36127aad36071",
+    "balance": "93000000000",
+    "isContract": false
+  },
+  {
+    "address": "0x82d53cde9d5f286762ac33e9203a278d030feffc",
+    "balance": "80314127943",
+    "isContract": false
+  },
+  {
+    "address": "0x64da84b4e73a9189521198c6abca617e30644fcf",
+    "balance": "30712055952",
+    "isContract": false
+  },
+  {
+    "address": "0x6efd1ceb5c73248ab7d49b46f44e132f7c50c183",
+    "balance": "29311120088",
+    "isContract": false
+  },
+  {
+    "address": "0x8224cf8cf50fae54593b8439fd9cb460598e8f80",
+    "balance": "21359759177",
+    "isContract": false
+  },
+  {
+    "address": "0x647eaf826c6b7171c4ca1efb59c624aaf2553ce1",
+    "balance": "5000000001",
+    "isContract": false
+  },
+  {
+    "address": "0x72facc339f0c13388932543f1da6c8147103b924",
+    "balance": "1513909436",
+    "isContract": false
+  },
+  {
+    "address": "0xe989ea790938011e9d421eb2734a4bf9e89c54cd",
+    "balance": "1365088446",
+    "isContract": false
+  },
+  {
+    "address": "0xbcb5f95758fee1a28c24a4c4f8473896f57f6a56",
+    "balance": "1061662347",
+    "isContract": false
+  },
+  {
+    "address": "0xb3bfbe8217216b5e4ff0d352c94be9fa072ec7da",
+    "balance": "1009998001",
+    "isContract": false
+  },
+  {
+    "address": "0x9009a3bfffe89419d7da4e6740abdfe3b1ba843c",
+    "balance": "182990182",
+    "isContract": false
+  },
+  {
+    "address": "0x6eed19b17ab56b7c5e0a5a5843068a14ab382152",
+    "balance": "683593",
+    "isContract": false
+  },
+  {
+    "address": "0xb52f10cc36fb8501f9af0b5e5c7eb9a669ddca44",
+    "balance": "16",
+    "isContract": false
+  }
+]
