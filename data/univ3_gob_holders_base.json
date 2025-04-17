@@ -1,0 +1,114 @@
+[
+  {
+    "tokenId": "319",
+    "minter": "0x63a7367bc9727e8b81dad797aa1a265ec8f5ac56",
+    "owner": "0x07579501479896B286a0Bc9FF67100e99687Af35",
+    "ownerIsContract": true,
+    "balance": "322988712061"
+  },
+  {
+    "tokenId": "320",
+    "minter": "0x63a7367bc9727e8b81dad797aa1a265ec8f5ac56",
+    "owner": "0x07579501479896B286a0Bc9FF67100e99687Af35",
+    "ownerIsContract": true,
+    "balance": "298776839973"
+  },
+  {
+    "tokenId": "303",
+    "minter": "0x64da84b4e73a9189521198c6abca617e30644fcf",
+    "owner": "0x07579501479896B286a0Bc9FF67100e99687Af35",
+    "ownerIsContract": true,
+    "balance": "78491364585"
+  },
+  {
+    "tokenId": "143",
+    "minter": "0x64da84b4e73a9189521198c6abca617e30644fcf",
+    "owner": "0x07579501479896B286a0Bc9FF67100e99687Af35",
+    "ownerIsContract": true,
+    "balance": "70364482151"
+  },
+  {
+    "tokenId": "301",
+    "minter": "0x1d9b6f64b3ae1f052cc75328cddaffd36282dc3a",
+    "owner": "0x07579501479896B286a0Bc9FF67100e99687Af35",
+    "ownerIsContract": true,
+    "balance": "49934367633"
+  },
+  {
+    "tokenId": "178",
+    "minter": "0x64da84b4e73a9189521198c6abca617e30644fcf",
+    "owner": "0x07579501479896B286a0Bc9FF67100e99687Af35",
+    "ownerIsContract": true,
+    "balance": "40700048241"
+  },
+  {
+    "tokenId": "317",
+    "minter": "0x647eaf826c6b7171c4ca1efb59c624aaf2553ce1",
+    "owner": "0x07579501479896B286a0Bc9FF67100e99687Af35",
+    "ownerIsContract": true,
+    "balance": "19387074184"
+  },
+  {
+    "tokenId": "249",
+    "minter": "0x63a7367bc9727e8b81dad797aa1a265ec8f5ac56",
+    "owner": "0x63A7367bc9727E8b81Dad797Aa1a265Ec8f5AC56",
+    "ownerIsContract": false,
+    "balance": "8709223321"
+  },
+  {
+    "tokenId": "313",
+    "minter": "0x647eaf826c6b7171c4ca1efb59c624aaf2553ce1",
+    "owner": "0x07579501479896B286a0Bc9FF67100e99687Af35",
+    "ownerIsContract": true,
+    "balance": "8707514211"
+  },
+  {
+    "tokenId": "220",
+    "minter": "0x64da84b4e73a9189521198c6abca617e30644fcf",
+    "owner": "0x07579501479896B286a0Bc9FF67100e99687Af35",
+    "ownerIsContract": true,
+    "balance": "5913998500"
+  },
+  {
+    "tokenId": "146",
+    "minter": "0x64da84b4e73a9189521198c6abca617e30644fcf",
+    "owner": "0x07579501479896B286a0Bc9FF67100e99687Af35",
+    "ownerIsContract": true,
+    "balance": "2811956626"
+  },
+  {
+    "tokenId": "315",
+    "minter": "0x647eaf826c6b7171c4ca1efb59c624aaf2553ce1",
+    "owner": "0x647EAf826c6b7171c4cA1efb59C624AAf2553CE1",
+    "ownerIsContract": false,
+    "balance": "1187760215"
+  },
+  {
+    "tokenId": "142",
+    "minter": "0x64da84b4e73a9189521198c6abca617e30644fcf",
+    "owner": "0x07579501479896B286a0Bc9FF67100e99687Af35",
+    "ownerIsContract": true,
+    "balance": "926339689"
+  },
+  {
+    "tokenId": "318",
+    "minter": "0x647eaf826c6b7171c4ca1efb59c624aaf2553ce1",
+    "owner": "0x647EAf826c6b7171c4cA1efb59C624AAf2553CE1",
+    "ownerIsContract": false,
+    "balance": "520224935"
+  },
+  {
+    "tokenId": "153",
+    "minter": "0xe41277b8045ab83ca8a0233f4013808e7cebff42",
+    "owner": "0xe41277b8045aB83Ca8A0233F4013808E7cEBFF42",
+    "ownerIsContract": false,
+    "balance": "54889168"
+  },
+  {
+    "tokenId": "316",
+    "minter": "0xe989ea790938011e9d421eb2734a4bf9e89c54cd",
+    "owner": "0xe989EA790938011e9d421eB2734A4Bf9e89c54CD",
+    "ownerIsContract": false,
+    "balance": "11365027"
+  }
+]

@@ -3,18 +3,30 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "build": "hardhat compile",
+    "coverage": "npx hardhat coverage --sources AirdropDistributor.sol",
     "test": "hardhat test",
+
     "gob_sbch": "npx hardhat --network smartbch gob_holders_sbch",
     "gob_bsc": "npx hardhat --network bsc gob_holders_bsc",
     "gob_base": "npx hardhat --network base gob_holders_base",
     "gob": "npx run-p gob_sbch gob_bsc gob_base",
+
     "staked_gob_sbch": "npx hardhat --network smartbch staked_gob_sbch",
     "staked_gob_bsc": "npx hardhat --network bsc staked_gob_bsc",
     "staked_gob_base": "npx hardhat --network base staked_gob_base",
     "staked_gob": "npx run-p staked_gob_sbch staked_gob_bsc staked_gob_base",
+
     "sgob_sbch": "npx hardhat --network smartbch sgob_holders_sbch",
     "sgob": "npx run-p sgob_sbch",
-    "univ3_gob_bsc": "npx hardhat --network bsc univ3_gob_bsc"
+
+    "univ3_gob_sbch": "npx hardhat --network smartbch univ3_gob_sbch",
+    "univ3_gob_bsc": "npx hardhat --network bsc univ3_gob_bsc",
+    "univ3_gob_base": "npx hardhat --network base univ3_gob_base",
+    "univ3_gob": "npx run-p univ3_gob_sbch univ3_gob_bsc univ3_gob_base",
+
+    "combine_outputs": "npx hardhat combine_outputs",
+    "airdrop": "npx hardhat --network bsc airdrop"
   },
   "keywords": [],
   "author": "",

@@ -56,8 +56,13 @@ const config: HardhatUserConfig = {
       accounts: [PRIVATE_KEY],
       chainId: 56,
     },
+    bscTestnet: {
+      url: "https://data-seed-prebsc-1-s1.binance.org:8545",
+      accounts: [PRIVATE_KEY],
+      chainId: 97,
+    },
     base: {
-      url: "https://mainnet.base.org",
+      url: "https://base.gateway.tenderly.co",
       accounts: [PRIVATE_KEY],
       chainId: 8453,
     },
