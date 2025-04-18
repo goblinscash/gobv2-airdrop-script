@@ -57,12 +57,12 @@ const GobBaseAddress = "0xcDBa3E4C5c505F37CfbBB7aCCF20D57e793568E3";
 const GobBaseStartBlock = 22731422;
 
 // Gob stakers
-const StakedGobSbchAddress = "0xfA3D02c971F6D97076b8405500c2210476C6A5E8";
-const StakedGobSbchStartBlock = 14815912;
-const StakedGobBscAddress = "0xB4D117f9c404652030F3d12f6DE58172317a2eDa";
-const StakedGobBscStartBlock = 43532843;
-const StakedGobBasehAddress = "0xAAFa8A16121939414B529289fA69F08aefE51769";
-const StakedGobBaseStartBlock = 23605756;
+const StakingRewardsSbchAddress = "0xfA3D02c971F6D97076b8405500c2210476C6A5E8";
+const StakingRewardsSbchStartBlock = 14815912;
+const StakingRewardsBscAddress = "0xB4D117f9c404652030F3d12f6DE58172317a2eDa";
+const StakingRewardsBscStartBlock = 43532843;
+const StakingRewardsBaseAddress = "0xAAFa8A16121939414B529289fA69F08aefE51769";
+const StakingRewardsBaseStartBlock = 23605756;
 
 // SGob holders
 const SGobSbchAddress = "0x47c61F29B1458d234409Ebbe4B6a70F3b16528EF";
@@ -211,10 +211,10 @@ task("gob_holders_base", "Get Gob holders on Base").setAction(async ({ }, hre) =
   fs.writeFileSync("data/gob_holders_base.json", JSON.stringify(holders, null, 2));
 });
 
-const getStakingHolders = async (hre: HardhatRuntimeEnvironment, address: string, fromBlock: number, toBlock: number, timeout: number) => {
+const getStakingHolders = async (hre: HardhatRuntimeEnvironment, stakingRewardsAddress: string, fromBlock: number, toBlock: number, timeout: number) => {
   const [deployer] = await hre.ethers.getSigners();
   const provider = deployer.provider;
-  const contract = await hre.ethers.getContractAt(IStakingRewards_ABI, address) as unknown as IStakingRewards;
+  const contract = await hre.ethers.getContractAt(IStakingRewards_ABI, stakingRewardsAddress) as unknown as IStakingRewards;
 
   const holderMap: Record<string, boolean> = {};
   await scanEvents({
@@ -230,6 +230,9 @@ const getStakingHolders = async (hre: HardhatRuntimeEnvironment, address: string
   });
   const holders = Object.keys(holderMap);
 
+  const rewardsToken = await contract.rewardsToken();
+  const rewardsTokenIsGob = [GobBaseAddress, GobBscAddress, GobSbchAddress].map(address => address.toLowerCase()).includes(rewardsToken.toLowerCase());
+
   const holderBalanceMap: HolderInfo[] = [];
   console.log("Postprocessing", holders.length, "holders...");
   for (const address of holders) {
@@ -238,7 +241,6 @@ const getStakingHolders = async (hre: HardhatRuntimeEnvironment, address: string
       continue;
     }
 
-
     await new Promise((resolve) => setTimeout(resolve, 2 * timeout));
 
     const balance = await contract.balanceOf(address);
@@ -246,11 +248,17 @@ const getStakingHolders = async (hre: HardhatRuntimeEnvironment, address: string
       continue;
     }
 
+    let earned = 0n;
+    if (rewardsTokenIsGob) {
+      await new Promise((resolve) => setTimeout(resolve, timeout));
+      earned = await contract.earned(address);
+    }
+
     const isContract = await provider.getCode(address) !== "0x";
 
     holderBalanceMap.push({
       address: address,
-      balance: balance.toString(),
+      balance: (balance + earned).toString(),
       isContract: isContract,
     });
   }
@@ -273,19 +281,19 @@ const getStakingHolders = async (hre: HardhatRuntimeEnvironment, address: string
 /// gob staking
 
 task("staked_gob_sbch", "Get staked Gob holders on SmartBCH").setAction(async ({ }, hre) => {
-  const holders = await getStakingHolders(hre, StakedGobSbchAddress, StakedGobSbchStartBlock, 0, 0);
+  const holders = await getStakingHolders(hre, StakingRewardsSbchAddress, StakingRewardsSbchStartBlock, 0, 0);
 
   fs.writeFileSync("data/staked_gob_holders_sbch.json", JSON.stringify(holders, null, 2));
 });
 
 task("staked_gob_bsc", "Get staked Gob holders on BSC").setAction(async ({ }, hre) => {
-  const holders = await getStakingHolders(hre, StakedGobBscAddress, StakedGobBscStartBlock, 0, 150);
+  const holders = await getStakingHolders(hre, StakingRewardsBscAddress, StakingRewardsBscStartBlock, 0, 150);
 
   fs.writeFileSync("data/staked_gob_holders_bsc.json", JSON.stringify(holders, null, 2));
 });
 
 task("staked_gob_base", "Get staked Gob holders on Base").setAction(async ({ }, hre) => {
-  const holders = await getStakingHolders(hre, StakedGobBasehAddress, StakedGobBaseStartBlock, 0, 0);
+  const holders = await getStakingHolders(hre, StakingRewardsBaseAddress, StakingRewardsBaseStartBlock, 0, 0);
 
   fs.writeFileSync("data/staked_gob_holders_base.json", JSON.stringify(holders, null, 2));
 });

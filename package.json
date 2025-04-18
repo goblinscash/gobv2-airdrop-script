@@ -26,6 +26,9 @@
     "univ3_gob": "npx run-p univ3_gob_sbch univ3_gob_bsc univ3_gob_base",
 
     "combine_outputs": "npx hardhat combine_outputs",
+
+    "pipeline": "npx run-s gob staked_gob sgob univ3_gob combine_outputs",
+
     "airdrop": "npx hardhat --network bsc airdrop"
   },
   "keywords": [],

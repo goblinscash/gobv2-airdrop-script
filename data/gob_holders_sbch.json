@@ -345,11 +345,6 @@
     "isContract": true
   },
   {
-    "address": "0xdee39175b3d5336d9957da568edd30f6a19f0333",
-    "balance": "250000000",
-    "isContract": false
-  },
-  {
     "address": "0xbed1807abd48495f9d3583bfbc2c46883fcd4c9d",
     "balance": "249712276",
     "isContract": true
@@ -462,6 +457,11 @@
   {
     "address": "0x741dae0202d78624518f168b226a453383ee96d2",
     "balance": "2259440",
+    "isContract": false
+  },
+  {
+    "address": "0x761cebc16b85e1e840e4e1866438694d7b452036",
+    "balance": "1625061",
     "isContract": false
   },
   {
