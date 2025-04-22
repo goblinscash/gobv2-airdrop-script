@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { task } from "hardhat/config";
-import { BaseContract, Contract, EventLog, ZeroAddress } from 'ethers';
+import { AbiCoder, BaseContract, Contract, EventLog, keccak256, ZeroAddress } from 'ethers';
 
 import "@nomicfoundation/hardhat-ethers";
 import { TypedContractEvent } from '../typechain-types/common';
@@ -17,6 +17,8 @@ import { IUniswapV3Factory } from '../typechain-types';
 import IUniswapV3Factory_Artifact from '../artifacts/contracts/IUniswapV3Factory.sol/IUniswapV3Factory.json';
 import { UniV3PositionValue } from '../typechain-types';
 import UniV3PositionValue_Artifact from '../artifacts/contracts/UniV3PositionValue.sol/UniV3PositionValue.json';
+import { IUniswapV3Staker } from '../typechain-types';
+import IUniswapV3Staker_Artifact from '../artifacts/contracts/IUniswapV3Staker.sol/IUniswapV3Staker.json';
 import { AirdropDistributor } from '../typechain-types/contracts/AirdropDistributor';
 import AirdropDistributor_Artifact from '../artifacts/contracts/AirdropDistributor.sol/AirdropDistributor.json';
 
@@ -26,6 +28,7 @@ const INonfungiblePositionManager_ABI = INonfungiblePositionManager_Artifact.abi
 const IUniswapV3Pool_ABI = IUniswapV3Pool_Artifact.abi;
 const IUniswapV3Factory_ABI = IUniswapV3Factory_Artifact.abi;
 const UniV3PositionValue_ABI = UniV3PositionValue_Artifact.abi;
+const IUniswapV3Staker_ABI = IUniswapV3Staker_Artifact.abi;
 const AirdropDistributor_ABI = AirdropDistributor_Artifact.abi;
 
 export const deadAddress = "0x000000000000000000000000000000000000dEaD";
@@ -80,6 +83,17 @@ const UniV3FactoryBscAddress = "0x30D9e1f894FBc7d2227Dd2a017F955d5586b1e14";
 const UniV3PositionManagerBaseAddress = "0x3f11feF6633f9aF950426fEe3eaE6e68943E28A0";
 const UniV3PositionManagerBaseStartBlock = 21481354;
 const UniV3FactoryBaseAddress = "0xE82Fa4d4Ff25bad8B07c4d1ebd50e83180DD5eB8";
+
+// UniswapV3Staker
+const UniV3StakerSbchAddress = "0x264136e16848008A689FAC1c121631ff6D44376E";
+const UniV3StakerSbchStartBlock = 15587170;
+
+const UniV3StakerBscAddress = "0x44355c799dba57e6c22a9d7b3815dfF2A6FB0846";
+const UniV3StakerBscStartBlock = 42500706;
+
+const UniV3StakerBaseAddress = "0x07579501479896B286a0Bc9FF67100e99687Af35";
+const UniV3StakerBaseStartBlock = 21487962;
+
 
 // AirdropDistributor
 const AirdropDistributorAddress = "0xE873b27Bd777DCbB48ca686e09005be920eCCE5B";
@@ -437,6 +451,127 @@ task("univ3_gob_base", "Get UniV3 staked NFT LPs Gob holders on Base").setAction
   fs.writeFileSync("data/univ3_gob_holders_base.json", JSON.stringify(holders, null, 2));
 });
 
+/// univ3 gob holders
+const getUniV3StakerGobRewards = async (hre: HardhatRuntimeEnvironment, network: string, uniV3StakerAddress: string, gobAddress: string, fromBlock: number, toBlock: number, timeout: number) => {
+  const [deployer] = await hre.ethers.getSigners();
+  const provider = deployer.provider;
+  const uniV3Staker = await hre.ethers.getContractAt(IUniswapV3Staker_ABI, uniV3StakerAddress) as unknown as IUniswapV3Staker;
+
+  // maps tokenId to minter address
+  const incentiveMap: Record<string, {
+    rewardToken: string;
+    pool: string;
+    startTime: bigint;
+    endTime: bigint;
+    refundee: string;
+    minWidth: bigint;
+    reward: bigint;
+    incentiveId: string;
+  }> = {};
+
+  await scanEvents({
+    contract: uniV3Staker,
+    filter: uniV3Staker.filters['IncentiveCreated(address,address,uint256,uint256,address,int24,uint256)'],
+    fromBlock: fromBlock,
+    toBlock: toBlock || await provider.getBlockNumber(),
+    processFn: async (event) => {
+      // console.log("IncentiveCreated", event.args);
+      if (event.args.rewardToken.toLowerCase() === gobAddress.toLowerCase()) {
+        const incentiveId = keccak256(AbiCoder.defaultAbiCoder().encode(
+          ["address", "address", "uint256", "uint256", "address"],
+          [event.args.rewardToken, event.args.pool, event.args.startTime, event.args.endTime, event.args.refundee]
+        ));
+
+        await new Promise((resolve) => setTimeout(resolve, timeout));
+        const incentive = await uniV3Staker.incentives(incentiveId);
+        if (incentive.numberOfStakes > 0n) {
+          incentiveMap[incentiveId] = {
+            rewardToken: event.args.rewardToken,
+            pool: event.args.pool,
+            startTime: event.args.startTime,
+            endTime: event.args.endTime,
+            refundee: event.args.refundee,
+            minWidth: event.args.minWidth,
+            reward: event.args.reward,
+            incentiveId: incentiveId,
+          };
+        }
+      }
+    },
+    timeout: timeout,
+    blockBatch: 10000,
+  });
+
+  const univ3NftHolders = JSON.parse(fs.readFileSync(`data/univ3_gob_holders_${network}.json`, "utf-8")) as UniV3HolderInfo[];
+
+  const holderBalanceMap: HolderInfo[] = [];
+  console.log("Postprocessing", univ3NftHolders.length, "univ3 nft holders and", Object.values(incentiveMap).length, "incentives...");
+  for (const holder of univ3NftHolders) {
+    if (!holder.ownerIsContract) {
+      continue;
+    }
+
+    for (const incentive of Object.values(incentiveMap)) {
+      try {
+        await new Promise((resolve) => setTimeout(resolve, timeout));
+
+        const rewardInfo = await uniV3Staker.getRewardInfo({
+          rewardToken: incentive.rewardToken,
+          pool: incentive.pool,
+          startTime: incentive.startTime,
+          endTime: incentive.endTime,
+          refundee: incentive.refundee,
+        }, holder.tokenId);
+
+        const reward = rewardInfo.reward;
+        if (reward > 0n) {
+          holderBalanceMap.push({
+            address: holder.minter,
+            balance: reward.toString(),
+            isContract: false,
+          });
+          // console.log("Found reward for tokenId", holder.tokenId, "incentive:", incentive, "reward:", reward.toString());
+        }
+      } catch (e) {
+        // console.error("Error getting incentive for tokenId", holder.tokenId, "incentive:", incentive, "error:", e);
+      }
+    }
+  }
+
+  holderBalanceMap.sort((a, b) => {
+    const aBalance = BigInt(a.balance);
+    const bBalance = BigInt(b.balance);
+    if (aBalance > bBalance) {
+      return -1;
+    } else if (aBalance < bBalance) {
+      return 1;
+    }
+    return 0;
+  });
+
+  console.log(holderBalanceMap);
+  return holderBalanceMap;
+}
+
+task("univ3_staker_gob_rewards_sbch", "Get UniV3 staked NFT Gob rewards on SmartBCH").setAction(async ({ }, hre) => {
+  const holders = await getUniV3StakerGobRewards(hre, "sbch", UniV3StakerSbchAddress, GobSbchAddress, UniV3StakerSbchStartBlock, 0, 0);
+
+  fs.writeFileSync("data/univ3_staker_gob_rewards_holders_sbch.json", JSON.stringify(holders, null, 2));
+});
+
+
+task("univ3_staker_gob_rewards_bsc", "Get UniV3 staked NFT Gob rewards on BSC").setAction(async ({ }, hre) => {
+  const holders = await getUniV3StakerGobRewards(hre, "bsc", UniV3StakerBscAddress, GobBscAddress, UniV3StakerBscStartBlock, 0, 150);
+
+  fs.writeFileSync("data/univ3_staker_gob_rewards_holders_bsc.json", JSON.stringify(holders, null, 2));
+});
+
+task("univ3_staker_gob_rewards_base", "Get UniV3 staked NFT Gob rewards on Base").setAction(async ({ }, hre) => {
+  const holders = await getUniV3StakerGobRewards(hre, "base", UniV3StakerBaseAddress, GobBaseAddress, UniV3StakerBaseStartBlock, 0, 0);
+
+  fs.writeFileSync("data/univ3_staker_gob_rewards_holders_base.json", JSON.stringify(holders, null, 2));
+});
+
 task("combine_outputs", "Combine all outputs into one file").setAction(async ({ }, hre) => {
   const sbchHolders = JSON.parse(fs.readFileSync("data/gob_holders_sbch.json", "utf-8")) as HolderInfo[];
   const bscHolders = JSON.parse(fs.readFileSync("data/gob_holders_bsc.json", "utf-8")) as HolderInfo[];
@@ -451,6 +586,10 @@ task("combine_outputs", "Combine all outputs into one file").setAction(async ({ 
   const univ3SbchHolders = JSON.parse(fs.readFileSync("data/univ3_gob_holders_sbch.json", "utf-8")) as UniV3HolderInfo[];
   const univ3BscHolders = JSON.parse(fs.readFileSync("data/univ3_gob_holders_bsc.json", "utf-8")) as UniV3HolderInfo[];
   const univ3BaseHolders = JSON.parse(fs.readFileSync("data/univ3_gob_holders_base.json", "utf-8")) as UniV3HolderInfo[];
+
+  const univ3StakerSbchHolders = JSON.parse(fs.readFileSync("data/univ3_staker_gob_rewards_holders_sbch.json", "utf-8")) as HolderInfo[];
+  const univ3StakerBscHolders = JSON.parse(fs.readFileSync("data/univ3_staker_gob_rewards_holders_bsc.json", "utf-8")) as HolderInfo[];
+  const univ3StakerBaseHolders = JSON.parse(fs.readFileSync("data/univ3_staker_gob_rewards_holders_base.json", "utf-8")) as HolderInfo[];
 
   const holderMap: Record<string, bigint> = {};
 
@@ -492,6 +631,9 @@ task("combine_outputs", "Combine all outputs into one file").setAction(async ({ 
   addUniV3HoldersToHolderMap(univ3SbchHolders);
   addUniV3HoldersToHolderMap(univ3BscHolders);
   addUniV3HoldersToHolderMap(univ3BaseHolders);
+  addHoldersToHolderMap(univ3StakerSbchHolders);
+  addHoldersToHolderMap(univ3StakerBscHolders);
+  addHoldersToHolderMap(univ3StakerBaseHolders);
 
   const combined = Object.entries(holderMap).map(([address, balance]) => ({
     address,

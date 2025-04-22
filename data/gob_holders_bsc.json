@@ -1,33 +1,33 @@
 [
   {
     "address": "0xb4d117f9c404652030f3d12f6de58172317a2eda",
-    "balance": "5783496446813",
+    "balance": "6238491796389",
     "isContract": true
   },
   {
     "address": "0xb0a62791fa6f606cf4aaa9bb4a1a1b8efd5a6e7e",
-    "balance": "1105662261840",
+    "balance": "1144700197948",
     "isContract": true
   },
   {
     "address": "0x44355c799dba57e6c22a9d7b3815dff2a6fb0846",
-    "balance": "484748785435",
+    "balance": "471114985698",
     "isContract": true
   },
   {
     "address": "0x49d8a967ccf81313cc02b8fd25f74f1a24423d2b",
-    "balance": "181271949046",
+    "balance": "184399698097",
+    "isContract": true
+  },
+  {
+    "address": "0x47f9525af45aed49a31a5e9e03adf5124424f709",
+    "balance": "90636660441",
     "isContract": true
   },
   {
     "address": "0x64da84b4e73a9189521198c6abca617e30644fcf",
-    "balance": "121583063964",
+    "balance": "60506114125",
     "isContract": false
-  },
-  {
-    "address": "0x47f9525af45aed49a31a5e9e03adf5124424f709",
-    "balance": "91378938955",
-    "isContract": true
   },
   {
     "address": "0x82d53cde9d5f286762ac33e9203a278d030feffc",
@@ -36,47 +36,47 @@
   },
   {
     "address": "0x7a2d4457265112f14fc765377a3c314e6d67dff3",
-    "balance": "34685288048",
+    "balance": "35155847696",
     "isContract": true
   },
   {
     "address": "0x17196d3611e236b3e487b8aa64a1c8386d79b87d",
-    "balance": "18854041561",
+    "balance": "19020283366",
     "isContract": true
   },
   {
     "address": "0x073f0fee1771f9b3a7255cee6e089061a21e6607",
-    "balance": "15719716219",
+    "balance": "15651532952",
     "isContract": true
   },
   {
     "address": "0xbcbc6fc5bb50b9602dba10751b2233da2a0acf46",
-    "balance": "14707173296",
+    "balance": "15454553364",
     "isContract": true
   },
   {
     "address": "0x0ba1a407e4e04a81d45f9952eb958bfb41b32860",
-    "balance": "11780686258",
+    "balance": "12081180211",
     "isContract": true
   },
   {
     "address": "0x33454d895d942a4da7477b67abe22d447e8a90b6",
-    "balance": "11219237745",
+    "balance": "11321099790",
     "isContract": true
   },
   {
     "address": "0xe9f50906d8ea7ced2a1c770c4d83a3ad18b9c6ab",
-    "balance": "9600201974",
+    "balance": "9784285189",
     "isContract": true
   },
   {
     "address": "0x91a0f9a1ae753b600fa1410b27b5a67667e6c0a3",
-    "balance": "8447384540",
+    "balance": "8842415413",
     "isContract": true
   },
   {
     "address": "0x1a792f725ddd4b80add4c5734caa1cb2c4c98f66",
-    "balance": "7599388955",
+    "balance": "7809513970",
     "isContract": true
   },
   {

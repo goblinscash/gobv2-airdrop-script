@@ -4,28 +4,28 @@
     "minter": "0x63a7367bc9727e8b81dad797aa1a265ec8f5ac56",
     "owner": "0x44355c799dba57e6c22a9d7b3815dfF2A6FB0846",
     "ownerIsContract": true,
-    "balance": "487253298861"
+    "balance": "503856477630"
   },
   {
     "tokenId": "378",
     "minter": "0x64da84b4e73a9189521198c6abca617e30644fcf",
     "owner": "0x44355c799dba57e6c22a9d7b3815dfF2A6FB0846",
     "ownerIsContract": true,
-    "balance": "220768116103"
+    "balance": "242023575427"
   },
   {
     "tokenId": "406",
     "minter": "0x647eaf826c6b7171c4ca1efb59c624aaf2553ce1",
     "owner": "0x647EAf826c6b7171c4cA1efb59C624AAf2553CE1",
     "ownerIsContract": false,
-    "balance": "188546502837"
+    "balance": "191569602817"
   },
   {
     "tokenId": "344",
     "minter": "0x64da84b4e73a9189521198c6abca617e30644fcf",
     "owner": "0x44355c799dba57e6c22a9d7b3815dfF2A6FB0846",
     "ownerIsContract": true,
-    "balance": "63301202782"
+    "balance": "69211208913"
   },
   {
     "tokenId": "442",
@@ -39,14 +39,14 @@
     "minter": "0x647eaf826c6b7171c4ca1efb59c624aaf2553ce1",
     "owner": "0x647EAf826c6b7171c4cA1efb59C624AAf2553CE1",
     "ownerIsContract": false,
-    "balance": "18074628255"
+    "balance": "18579517233"
   },
   {
     "tokenId": "407",
     "minter": "0x64da84b4e73a9189521198c6abca617e30644fcf",
     "owner": "0x44355c799dba57e6c22a9d7b3815dfF2A6FB0846",
     "ownerIsContract": true,
-    "balance": "4828578760"
+    "balance": "5658514399"
   },
   {
     "tokenId": "352",

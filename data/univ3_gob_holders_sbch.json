@@ -4,21 +4,28 @@
     "minter": "0x63a7367bc9727e8b81dad797aa1a265ec8f5ac56",
     "owner": "0x264136e16848008A689FAC1c121631ff6D44376E",
     "ownerIsContract": true,
-    "balance": "453101828935"
+    "balance": "460408017609"
   },
   {
     "tokenId": "1008",
     "minter": "0x64da84b4e73a9189521198c6abca617e30644fcf",
     "owner": "0x264136e16848008A689FAC1c121631ff6D44376E",
     "ownerIsContract": true,
-    "balance": "102274271714"
+    "balance": "107541598361"
   },
   {
     "tokenId": "1028",
     "minter": "0x63a7367bc9727e8b81dad797aa1a265ec8f5ac56",
     "owner": "0x264136e16848008A689FAC1c121631ff6D44376E",
     "ownerIsContract": true,
-    "balance": "96304376288"
+    "balance": "97857110072"
+  },
+  {
+    "tokenId": "1030",
+    "minter": "0x0c1bb6646f84a50390ee2544b8737f352b9ed466",
+    "owner": "0x264136e16848008A689FAC1c121631ff6D44376E",
+    "ownerIsContract": true,
+    "balance": "17649129890"
   },
   {
     "tokenId": "77",

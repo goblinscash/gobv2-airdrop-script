@@ -25,9 +25,14 @@
     "univ3_gob_base": "npx hardhat --network base univ3_gob_base",
     "univ3_gob": "npx run-p univ3_gob_sbch univ3_gob_bsc univ3_gob_base",
 
+    "univ3_staker_gob_rewards_sbch": "npx hardhat --network smartbch univ3_staker_gob_rewards_sbch",
+    "univ3_staker_gob_rewards_bsc": "npx hardhat --network bsc univ3_staker_gob_rewards_bsc",
+    "univ3_staker_gob_rewards_base": "npx hardhat --network base univ3_staker_gob_rewards_base",
+    "univ3_staker_gob_rewards": "npx run-p univ3_staker_gob_rewards_sbch univ3_staker_gob_rewards_bsc univ3_staker_gob_rewards_base",
+
     "combine_outputs": "npx hardhat combine_outputs",
 
-    "pipeline": "npx run-s gob staked_gob sgob univ3_gob combine_outputs",
+    "pipeline": "npx run-s gob staked_gob sgob univ3_gob univ3_staker_gob_rewards combine_outputs",
 
     "airdrop": "npx hardhat --network bsc airdrop"
   },

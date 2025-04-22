@@ -43,6 +43,12 @@ To extract GOB holders from staked UniV3 LP positions, use:
 yarn univ3_gob
 ```
 
+#### Rewards for Staked NFTs in incentive pools
+
+```bash
+yarn univ3_staker_gob_rewards
+```
+
 Each task will output a JSON file containing the relevant holder data.
 
 Note, these tasks will take some time to execute.
@@ -61,7 +67,7 @@ Once the combined snapshot is ready, use the airdrop execution task to distribut
 yarn airdrop
 ```
 
-Ensure you have sufficient tokens to be airdropped in the wallet associated with the provided private key. Ensure that `AirdropTokenAddress` in `tasks/index.ts` points to a correct token address;
+Ensure you have sufficient tokens to be airdropped in the wallet associated with the provided private key. Ensure that `AIRDROP_TOKEN_ADDRESS` points to a correct token address and you have enough tokens to distribute.
 
 ## Configuration
 
