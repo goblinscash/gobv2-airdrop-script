@@ -21,7 +21,11 @@
 
 ### 0. Configure the environment
 
-Create a `.env` file or copy it from `env.example`. Set `PRIVATE_KEY` variable, like `PRIVATE_KEY=0x244d...`;
+Create a `.env` file or copy it from `env.example`.
+
+* Set `PRIVATE_KEY` variable to an account having enough tokens to be airdropped, e.g. `PRIVATE_KEY=0x244d...`
+* Set `AIRDROP_TOKEN_ADDRESS` to the contract address of the token you want to airdrop, e.g., `AIRDROP_TOKEN_ADDRESS=0x1234...`
+* Set `BALANCE_SCALE` to a number by which collected airdrop balances will be multiplied, must be a valid bigint, greater than 1. Example `BALANCE_SCALE=100`
 
 ### 1. Create Snapshots
 

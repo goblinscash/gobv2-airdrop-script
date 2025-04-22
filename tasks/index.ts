@@ -83,7 +83,8 @@ const UniV3FactoryBaseAddress = "0xE82Fa4d4Ff25bad8B07c4d1ebd50e83180DD5eB8";
 
 // AirdropDistributor
 const AirdropDistributorAddress = "0xE873b27Bd777DCbB48ca686e09005be920eCCE5B";
-const AirdropTokenAddress = "0xc671bfAf70FA90730521396e1b81185F005e47C5";
+const AirdropTokenAddress = process.env.AIRDROP_TOKEN_ADDRESS;
+const BalanceScale = process.env.BALANCE_SCALE;
 
 task("chainId", "Get chainId")
 .setAction(async ({ }, hre) => {
@@ -503,9 +504,25 @@ task("combine_outputs", "Combine all outputs into one file").setAction(async ({ 
 });
 
 task("airdrop", "Airdrop tokens").setAction(async ({ }, hre) => {
+  if (!AirdropTokenAddress) {
+    console.error("Airdrop token address not set");
+    return;
+  }
+
+  if (!BalanceScale) {
+    console.error("Balance scale not set");
+    return;
+  }
+
   const [deployer] = await hre.ethers.getSigners();
 
   const holders = JSON.parse(fs.readFileSync("data/airdrop.json", "utf-8")) as HolderInfo[];
+
+  const BalanceScaleBigint = BigInt(BalanceScale);
+  for (const holder of holders) {
+    const balance = BigInt(holder.balance);
+    holder.balance = (balance * BalanceScaleBigint).toString();
+  }
 
   // chunk holders into batches
   const batchSize = 100;
