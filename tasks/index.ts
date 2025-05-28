@@ -100,6 +100,28 @@ const AirdropDistributorAddress = "0xE873b27Bd777DCbB48ca686e09005be920eCCE5B";
 const AirdropTokenAddress = process.env.AIRDROP_TOKEN_ADDRESS;
 const BalanceScale = process.env.BALANCE_SCALE;
 
+export async function withretry<T>(
+  fn: () => Promise<T>,
+  tries: number = 10,
+  base: number = 1.5,
+): Promise<T> {
+  for (let retry=0; retry<tries; ++retry) {
+    try {
+      return await fn();
+    } catch (e: any) {
+      if (e.message && e.message.includes("execution reverted")) {
+        throw e;
+      }
+      const seconds = base**retry;
+      console.warn(`retry request failed, retrying in ${seconds}`);
+      console.debug(JSON.stringify(e));
+      await new Promise((resolve) => setTimeout(resolve, 1000 * seconds));
+    }
+  }
+  console.error(`retry request failed ${tries} times`);
+  throw new Error("retry request failed");
+}
+
 task("chainId", "Get chainId")
 .setAction(async ({ }, hre) => {
   const [deployer] = await hre.ethers.getSigners();
@@ -134,7 +156,7 @@ const scanEvents = async ({
   }
   console.log("Processing events from", startBlock, "to", endBlock, "in", blocks, "batches of", blockBatch, "blocks");
   for (const [from, to] of blockRanges) {
-    const eventsBatch = await contract.queryFilter(filter, from, to);
+    const eventsBatch = await withretry(async () => contract.queryFilter(filter, from, to));
     console.log("event search", from, to, "found", eventsBatch.length, ((1 - (toBlock - from) / (toBlock - fromBlock)) * 100).toFixed(2), "% completed");
     for (const event of eventsBatch) {
       const stop = await processFn(event as unknown as EventLog);
@@ -177,12 +199,12 @@ const getTokenHolders = async (hre: HardhatRuntimeEnvironment, address: string, 
 
     await new Promise((resolve) => setTimeout(resolve, 2 * timeout));
 
-    const balance = await contract.balanceOf(address);
+    const balance = await withretry(async () => contract.balanceOf(address));
     if (balance === 0n) {
       continue;
     }
 
-    const isContract = await provider.getCode(address) !== "0x";
+    const isContract = await withretry(async () => provider.getCode(address)) !== "0x";
 
     holderBalanceMap.push({
       address: address,
@@ -215,7 +237,7 @@ task("gob_holders_sbch", "Get Gob holders on SmartBCH").setAction(async ({ }, hr
 });
 
 task("gob_holders_bsc", "Get Gob holders on BSC").setAction(async ({ }, hre) => {
-  const holders = await getTokenHolders(hre, GobBscAddress, GobBscStartBlock, 0, 150);
+  const holders = await getTokenHolders(hre, GobBscAddress, GobBscStartBlock, 0, 0);
 
   fs.writeFileSync("data/gob_holders_bsc.json", JSON.stringify(holders, null, 2));
 });
@@ -236,7 +258,7 @@ const getStakingHolders = async (hre: HardhatRuntimeEnvironment, stakingRewardsA
     contract,
     filter: contract.filters['Staked(address,uint256)'],
     fromBlock: fromBlock,
-    toBlock: toBlock || await provider.getBlockNumber(),
+    toBlock: toBlock || await withretry(async () => provider.getBlockNumber()),
     processFn: async (event) => {
       holderMap[event.args.user.toLowerCase()] = true;
     },
@@ -245,7 +267,7 @@ const getStakingHolders = async (hre: HardhatRuntimeEnvironment, stakingRewardsA
   });
   const holders = Object.keys(holderMap);
 
-  const rewardsToken = await contract.rewardsToken();
+  const rewardsToken = await withretry(async () => contract.rewardsToken());
   const rewardsTokenIsGob = [GobBaseAddress, GobBscAddress, GobSbchAddress].map(address => address.toLowerCase()).includes(rewardsToken.toLowerCase());
 
   const holderBalanceMap: HolderInfo[] = [];
@@ -258,7 +280,7 @@ const getStakingHolders = async (hre: HardhatRuntimeEnvironment, stakingRewardsA
 
     await new Promise((resolve) => setTimeout(resolve, 2 * timeout));
 
-    const balance = await contract.balanceOf(address);
+    const balance = await withretry(async () => contract.balanceOf(address));
     if (balance === 0n) {
       continue;
     }
@@ -266,10 +288,10 @@ const getStakingHolders = async (hre: HardhatRuntimeEnvironment, stakingRewardsA
     let earned = 0n;
     if (rewardsTokenIsGob) {
       await new Promise((resolve) => setTimeout(resolve, timeout));
-      earned = await contract.earned(address);
+      earned = await withretry(async () => contract.earned(address));
     }
 
-    const isContract = await provider.getCode(address) !== "0x";
+    const isContract = await withretry(async () => provider.getCode(address)) !== "0x";
 
     holderBalanceMap.push({
       address: address,
@@ -302,7 +324,7 @@ task("staked_gob_sbch", "Get staked Gob holders on SmartBCH").setAction(async ({
 });
 
 task("staked_gob_bsc", "Get staked Gob holders on BSC").setAction(async ({ }, hre) => {
-  const holders = await getStakingHolders(hre, StakingRewardsBscAddress, StakingRewardsBscStartBlock, 0, 150);
+  const holders = await getStakingHolders(hre, StakingRewardsBscAddress, StakingRewardsBscStartBlock, 0, 0);
 
   fs.writeFileSync("data/staked_gob_holders_bsc.json", JSON.stringify(holders, null, 2));
 });
@@ -333,7 +355,7 @@ const getUniv3GobHolders = async (hre: HardhatRuntimeEnvironment, nftPositionMan
     contract: nftPositionManager,
     filter: nftPositionManager.filters['Transfer(address,address,uint256)'],
     fromBlock: fromBlock,
-    toBlock: toBlock || await provider.getBlockNumber(),
+    toBlock: toBlock || await withretry(async () => provider.getBlockNumber()),
     processFn: async (event) => {
       if (event.args.from.toLowerCase() === ZeroAddress) {
         // mint event
@@ -353,7 +375,7 @@ const getUniv3GobHolders = async (hre: HardhatRuntimeEnvironment, nftPositionMan
     let position;
     try {
       await new Promise((resolve) => setTimeout(resolve, timeout));
-      position = await nftPositionManager.positions(tokenId);
+      position = await withretry(async () => nftPositionManager.positions(tokenId));
     } catch {
       // bail if position for tokenId not found
       console.log("Position not found for tokenId", tokenId);
@@ -368,16 +390,16 @@ const getUniv3GobHolders = async (hre: HardhatRuntimeEnvironment, nftPositionMan
     let poolAddress: string;
     try {
       await new Promise((resolve) => setTimeout(resolve, timeout));
-      poolAddress = await factory.getPool(position.token0, position.token1, position.fee);
+      poolAddress = await withretry(async () => factory.getPool(position.token0, position.token1, position.fee));
     } catch (e) {
       console.log("Pool not found for tokenId", tokenId, "position:", position, "error:", e);
       continue;
     }
     const pool = await hre.ethers.getContractAt(IUniswapV3Pool_ABI, poolAddress) as unknown as IUniswapV3Pool;
     await new Promise((resolve) => setTimeout(resolve, timeout));
-    const token0 = await pool.token0();
+    const token0 = await withretry(async () => pool.token0());
     await new Promise((resolve) => setTimeout(resolve, timeout));
-    const token1 = await pool.token1();
+    const token1 = await withretry(async () => pool.token1());
     console.log("Pool address", poolAddress, "token0", token0, "token1", token1);
 
     if (token0.toLowerCase() !== gobAddress.toLowerCase() && token1.toLowerCase() !== gobAddress.toLowerCase()) {
@@ -386,21 +408,21 @@ const getUniv3GobHolders = async (hre: HardhatRuntimeEnvironment, nftPositionMan
     }
 
     await new Promise((resolve) => setTimeout(resolve, timeout));
-    const slot0 = await pool.slot0();
+    const slot0 = await withretry(async () => pool.slot0());
     const sqrtPriceX96 = slot0.sqrtPriceX96;;
 
     await new Promise((resolve) => setTimeout(resolve, timeout));
-    const [amount0, amount1] = await positionValue.total(await nftPositionManager.getAddress(), tokenId, sqrtPriceX96);
+    const [amount0, amount1] = await withretry(async () => positionValue.total(await nftPositionManager.getAddress(), tokenId, sqrtPriceX96));
 
     await new Promise((resolve) => setTimeout(resolve, timeout));
-    const owner = await nftPositionManager.ownerOf(tokenId);
+    const owner = await withretry(async () => nftPositionManager.ownerOf(tokenId));
     if (owner.toLowerCase() === ZeroAddress.toLowerCase() || owner.toLowerCase() === deadAddress.toLowerCase()) {
       console.log("Owner is dead address", owner, "skipping");
       continue;
     }
 
     await new Promise((resolve) => setTimeout(resolve, timeout));
-    const isContract = await provider.getCode(owner) !== "0x";
+    const isContract = await withretry(async () => provider.getCode(owner)) !== "0x";
 
     const balance = token0.toLowerCase() === gobAddress.toLowerCase() ? amount0 : amount1;
     if (balance === 0n) {
@@ -440,7 +462,7 @@ task("univ3_gob_sbch", "Get UniV3 staked NFT LPs Gob holders on SmartBCH").setAc
 
 
 task("univ3_gob_bsc", "Get UniV3 staked NFT LPs Gob holders on BSC").setAction(async ({ }, hre) => {
-  const holders = await getUniv3GobHolders(hre, UniV3PositionManagerBscAddress, UniV3FactoryBscAddress, GobBscAddress, UniV3PositionManagerBscStartBlock, 0, 150);
+  const holders = await getUniv3GobHolders(hre, UniV3PositionManagerBscAddress, UniV3FactoryBscAddress, GobBscAddress, UniV3PositionManagerBscStartBlock, 0, 0);
 
   fs.writeFileSync("data/univ3_gob_holders_bsc.json", JSON.stringify(holders, null, 2));
 });
@@ -473,7 +495,7 @@ const getUniV3StakerGobRewards = async (hre: HardhatRuntimeEnvironment, network:
     contract: uniV3Staker,
     filter: uniV3Staker.filters['IncentiveCreated(address,address,uint256,uint256,address,int24,uint256)'],
     fromBlock: fromBlock,
-    toBlock: toBlock || await provider.getBlockNumber(),
+    toBlock: toBlock || await withretry(async () => provider.getBlockNumber()),
     processFn: async (event) => {
       // console.log("IncentiveCreated", event.args);
       if (event.args.rewardToken.toLowerCase() === gobAddress.toLowerCase()) {
@@ -483,7 +505,7 @@ const getUniV3StakerGobRewards = async (hre: HardhatRuntimeEnvironment, network:
         ));
 
         await new Promise((resolve) => setTimeout(resolve, timeout));
-        const incentive = await uniV3Staker.incentives(incentiveId);
+        const incentive = await withretry(async () => uniV3Staker.incentives(incentiveId));
         if (incentive.numberOfStakes > 0n) {
           incentiveMap[incentiveId] = {
             rewardToken: event.args.rewardToken,
@@ -515,13 +537,13 @@ const getUniV3StakerGobRewards = async (hre: HardhatRuntimeEnvironment, network:
       try {
         await new Promise((resolve) => setTimeout(resolve, timeout));
 
-        const rewardInfo = await uniV3Staker.getRewardInfo({
+        const rewardInfo = await withretry(async () => uniV3Staker.getRewardInfo({
           rewardToken: incentive.rewardToken,
           pool: incentive.pool,
           startTime: incentive.startTime,
           endTime: incentive.endTime,
           refundee: incentive.refundee,
-        }, holder.tokenId);
+        }, holder.tokenId));
 
         const reward = rewardInfo.reward;
         if (reward > 0n) {
@@ -561,7 +583,7 @@ task("univ3_staker_gob_rewards_sbch", "Get UniV3 staked NFT Gob rewards on Smart
 
 
 task("univ3_staker_gob_rewards_bsc", "Get UniV3 staked NFT Gob rewards on BSC").setAction(async ({ }, hre) => {
-  const holders = await getUniV3StakerGobRewards(hre, "bsc", UniV3StakerBscAddress, GobBscAddress, UniV3StakerBscStartBlock, 0, 150);
+  const holders = await getUniV3StakerGobRewards(hre, "bsc", UniV3StakerBscAddress, GobBscAddress, UniV3StakerBscStartBlock, 0, 0);
 
   fs.writeFileSync("data/univ3_staker_gob_rewards_holders_bsc.json", JSON.stringify(holders, null, 2));
 });
@@ -695,4 +717,10 @@ task("airdrop", "Airdrop tokens").setAction(async ({ }, hre) => {
     console.log("Airdrop tx", tx.hash);
     await tx.wait();
   }
+});
+
+task("test revert", "Test revert").setAction(async ({ }, hre) => {
+  const nftPositionManager = await hre.ethers.getContractAt(INonfungiblePositionManager_ABI, UniV3PositionManagerBscAddress) as unknown as INonfungiblePositionManager;
+  const tokenId = 1000;
+  console.log(await withretry(async () => nftPositionManager.positions(tokenId)));
 });
