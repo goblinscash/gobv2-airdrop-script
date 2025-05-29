@@ -174,19 +174,31 @@ const getTokenHolders = async (hre: HardhatRuntimeEnvironment, address: string, 
   const provider = deployer.provider;
   const contract = await hre.ethers.getContractAt(IERC20_ABI, address) as unknown as IERC20;
 
-  const holderMap: Record<string, boolean> = {};
-  await scanEvents({
-    contract,
-    filter: contract.filters['Transfer(address,address,uint256)'],
-    fromBlock: fromBlock,
-    toBlock: toBlock || await provider.getBlockNumber(),
-    processFn: async (event) => {
-      holderMap[event.args.from.toLowerCase()] = true;
-      holderMap[event.args.to.toLowerCase()] = true;
-    },
-    timeout: timeout,
-    blockBatch: 10000,
-  });
+  let holderMap: Record<string, boolean> = {};
+  const method = getMethodName();
+  const cacheFile = `data/cache_${method}_${hre.network.name}.json`;
+
+  if (fs.existsSync(cacheFile)) {
+    console.log("Using cached data from", cacheFile);
+    holderMap = JSON.parse(fs.readFileSync(cacheFile, "utf-8")) as Record<string, boolean>;
+  } else {
+    console.log(`No cache found for key ${cacheFile}, scanning events...`);
+    await scanEvents({
+      contract,
+      filter: contract.filters['Transfer(address,address,uint256)'],
+      fromBlock: fromBlock,
+      toBlock: toBlock || await provider.getBlockNumber(),
+      processFn: async (event) => {
+        holderMap[event.args.from.toLowerCase()] = true;
+        holderMap[event.args.to.toLowerCase()] = true;
+      },
+      timeout: timeout,
+      blockBatch: 10000,
+    });
+
+    console.log(`Saving to cache file ${cacheFile}...`);
+    fs.writeFileSync(cacheFile, JSON.stringify(holderMap, null, 2));
+  }
   const holders = Object.keys(holderMap);
 
   console.log("Postprocessing", holders.length, "holders...");
@@ -253,18 +265,31 @@ const getStakingHolders = async (hre: HardhatRuntimeEnvironment, stakingRewardsA
   const provider = deployer.provider;
   const contract = await hre.ethers.getContractAt(IStakingRewards_ABI, stakingRewardsAddress) as unknown as IStakingRewards;
 
-  const holderMap: Record<string, boolean> = {};
-  await scanEvents({
-    contract,
-    filter: contract.filters['Staked(address,uint256)'],
-    fromBlock: fromBlock,
-    toBlock: toBlock || await withretry(async () => provider.getBlockNumber()),
-    processFn: async (event) => {
-      holderMap[event.args.user.toLowerCase()] = true;
-    },
-    timeout: timeout,
-    blockBatch: 10000,
-  });
+  let holderMap: Record<string, boolean> = {};
+  const method = getMethodName();
+  const cacheFile = `data/cache_${method}_${hre.network.name}.json`;
+
+  if (fs.existsSync(cacheFile)) {
+    console.log("Using cached data from", cacheFile);
+    holderMap = JSON.parse(fs.readFileSync(cacheFile, "utf-8")) as Record<string, boolean>;
+  } else {
+    console.log(`No cache found for key ${cacheFile}, scanning events...`);
+
+    await scanEvents({
+      contract,
+      filter: contract.filters['Staked(address,uint256)'],
+      fromBlock: fromBlock,
+      toBlock: toBlock || await withretry(async () => provider.getBlockNumber()),
+      processFn: async (event) => {
+        holderMap[event.args.user.toLowerCase()] = true;
+      },
+      timeout: timeout,
+      blockBatch: 10000,
+    });
+
+    console.log(`Saving to cache file ${cacheFile}...`);
+    fs.writeFileSync(cacheFile, JSON.stringify(holderMap, null, 2));
+  }
   const holders = Object.keys(holderMap);
 
   const rewardsToken = await withretry(async () => contract.rewardsToken());
@@ -350,21 +375,35 @@ const getUniv3GobHolders = async (hre: HardhatRuntimeEnvironment, nftPositionMan
   const positionValue = await hre.ethers.getContractAt(UniV3PositionValue_ABI, UniV3PositionValueAddress) as unknown as UniV3PositionValue;
 
   // maps tokenId to minter address
-  const tokenIdMap: Record<string, string> = {};
-  await scanEvents({
-    contract: nftPositionManager,
-    filter: nftPositionManager.filters['Transfer(address,address,uint256)'],
-    fromBlock: fromBlock,
-    toBlock: toBlock || await withretry(async () => provider.getBlockNumber()),
-    processFn: async (event) => {
-      if (event.args.from.toLowerCase() === ZeroAddress) {
-        // mint event
-        tokenIdMap[event.args.tokenId.toString()] = event.args.to;
-      }
-    },
-    timeout: timeout,
-    blockBatch: 10000,
-  });
+  let tokenIdMap: Record<string, string> = {};
+  const method = getMethodName();
+  const cacheFile = `data/cache_${method}_${hre.network.name}.json`;
+
+  if (fs.existsSync(cacheFile)) {
+    console.log("Using cached data from", cacheFile);
+    tokenIdMap = JSON.parse(fs.readFileSync(cacheFile, "utf-8")) as Record<string, string>;
+  } else {
+    console.log(`No cache found for key ${cacheFile}, scanning events...`);
+
+    await scanEvents({
+      contract: nftPositionManager,
+      filter: nftPositionManager.filters['Transfer(address,address,uint256)'],
+      fromBlock: fromBlock,
+      toBlock: toBlock || await withretry(async () => provider.getBlockNumber()),
+      processFn: async (event) => {
+        if (event.args.from.toLowerCase() === ZeroAddress) {
+          // mint event
+          tokenIdMap[event.args.tokenId.toString()] = event.args.to;
+        }
+      },
+      timeout: timeout,
+      blockBatch: 10000,
+    });
+
+    console.log(`Saving to cache file ${cacheFile}...`);
+    fs.writeFileSync(cacheFile, JSON.stringify(tokenIdMap, null, 2));
+  }
+
   const tokenIds = Object.keys(tokenIdMap);
 
   const factory = await hre.ethers.getContractAt(IUniswapV3Factory_ABI, factoryAddress) as unknown as IUniswapV3Factory;
@@ -491,38 +530,52 @@ const getUniV3StakerGobRewards = async (hre: HardhatRuntimeEnvironment, network:
     incentiveId: string;
   }> = {};
 
-  await scanEvents({
-    contract: uniV3Staker,
-    filter: uniV3Staker.filters['IncentiveCreated(address,address,uint256,uint256,address,int24,uint256)'],
-    fromBlock: fromBlock,
-    toBlock: toBlock || await withretry(async () => provider.getBlockNumber()),
-    processFn: async (event) => {
-      // console.log("IncentiveCreated", event.args);
-      if (event.args.rewardToken.toLowerCase() === gobAddress.toLowerCase()) {
-        const incentiveId = keccak256(AbiCoder.defaultAbiCoder().encode(
-          ["address", "address", "uint256", "uint256", "address"],
-          [event.args.rewardToken, event.args.pool, event.args.startTime, event.args.endTime, event.args.refundee]
-        ));
+  let tokenIdMap: Record<string, string> = {};
+  const method = getMethodName();
+  const cacheFile = `data/cache_${method}_${hre.network.name}.json`;
 
-        await new Promise((resolve) => setTimeout(resolve, timeout));
-        const incentive = await withretry(async () => uniV3Staker.incentives(incentiveId));
-        if (incentive.numberOfStakes > 0n) {
-          incentiveMap[incentiveId] = {
-            rewardToken: event.args.rewardToken,
-            pool: event.args.pool,
-            startTime: event.args.startTime,
-            endTime: event.args.endTime,
-            refundee: event.args.refundee,
-            minWidth: event.args.minWidth,
-            reward: event.args.reward,
-            incentiveId: incentiveId,
-          };
+  if (fs.existsSync(cacheFile)) {
+    console.log("Using cached data from", cacheFile);
+    tokenIdMap = JSON.parse(fs.readFileSync(cacheFile, "utf-8")) as Record<string, string>;
+  } else {
+    console.log(`No cache found for key ${cacheFile}, scanning events...`);
+
+    await scanEvents({
+      contract: uniV3Staker,
+      filter: uniV3Staker.filters['IncentiveCreated(address,address,uint256,uint256,address,int24,uint256)'],
+      fromBlock: fromBlock,
+      toBlock: toBlock || await withretry(async () => provider.getBlockNumber()),
+      processFn: async (event) => {
+        // console.log("IncentiveCreated", event.args);
+        if (event.args.rewardToken.toLowerCase() === gobAddress.toLowerCase()) {
+          const incentiveId = keccak256(AbiCoder.defaultAbiCoder().encode(
+            ["address", "address", "uint256", "uint256", "address"],
+            [event.args.rewardToken, event.args.pool, event.args.startTime, event.args.endTime, event.args.refundee]
+          ));
+
+          await new Promise((resolve) => setTimeout(resolve, timeout));
+          const incentive = await withretry(async () => uniV3Staker.incentives(incentiveId));
+          if (incentive.numberOfStakes > 0n) {
+            incentiveMap[incentiveId] = {
+              rewardToken: event.args.rewardToken,
+              pool: event.args.pool,
+              startTime: event.args.startTime,
+              endTime: event.args.endTime,
+              refundee: event.args.refundee,
+              minWidth: event.args.minWidth,
+              reward: event.args.reward,
+              incentiveId: incentiveId,
+            };
+          }
         }
-      }
-    },
-    timeout: timeout,
-    blockBatch: 10000,
-  });
+      },
+      timeout: timeout,
+      blockBatch: 10000,
+    });
+
+    console.log(`Saving to cache file ${cacheFile}...`);
+    fs.writeFileSync(cacheFile, JSON.stringify(tokenIdMap, null, 2));
+  }
 
   const univ3NftHolders = JSON.parse(fs.readFileSync(`data/univ3_gob_holders_${network}.json`, "utf-8")) as UniV3HolderInfo[];
 
@@ -724,3 +777,9 @@ task("test revert", "Test revert").setAction(async ({ }, hre) => {
   const tokenId = 1000;
   console.log(await withretry(async () => nftPositionManager.positions(tokenId)));
 });
+
+
+const getMethodName = () => {
+  var err = new Error();
+  return /at (\w+)/.exec(err.stack!.split('\n')[2])![1];
+}
