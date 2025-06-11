@@ -32,7 +32,7 @@
 
     "combine_outputs": "npx hardhat combine_outputs",
 
-    "pipeline": "npx run-s gob staked_gob sgob univ3_gob univ3_staker_gob_rewards combine_outputs",
+    "pipeline": "npx run-s gob sgob staked_gob univ3_gob univ3_staker_gob_rewards combine_outputs",
 
     "airdrop": "npx hardhat --network bsc airdrop"
   },
