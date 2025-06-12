@@ -96,7 +96,7 @@ const UniV3StakerBaseStartBlock = 21487962;
 
 
 // AirdropDistributor
-const AirdropDistributorAddress = "0xE873b27Bd777DCbB48ca686e09005be920eCCE5B";
+const AirdropDistributorAddress = "0xC2C544E62C68e05A25fFf2883253ba40C2937955";
 const AirdropTokenAddress = process.env.AIRDROP_TOKEN_ADDRESS;
 const BalanceScale = process.env.BALANCE_SCALE;
 

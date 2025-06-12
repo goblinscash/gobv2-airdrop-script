@@ -1,22 +1,7 @@
 [
   {
-    "address": "0x63a7367bc9727e8b81dad797aa1a265ec8f5ac56",
-    "balance": "4578374490764",
-    "isContract": false
-  },
-  {
-    "address": "0x64da84b4e73a9189521198c6abca617e30644fcf",
-    "balance": "689514655243",
-    "isContract": false
-  },
-  {
     "address": "0xbd30403521f17504a2ead195bf8d31ca518a4036",
     "balance": "454257100000",
-    "isContract": false
-  },
-  {
-    "address": "0x738281f75e9bcb12ba1b9cf5e430a084a0c0b14b",
-    "balance": "325015817155",
     "isContract": false
   },
   {

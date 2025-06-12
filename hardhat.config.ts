@@ -47,12 +47,14 @@ const config: HardhatUserConfig = {
       }
     },
     smartbch: {
-      url: "https://smartbch.greyh.at",
+      url: "https://smartbch.fountainhead.cash/mainnet",
       accounts: [PRIVATE_KEY],
       chainId: 10000,
     },
     bsc: {
-      url: "https://binance.llamarpc.com",
+      // url: "https://bsc-mainnet.infura.io/v3/9a90988b9f5542a8ac3d180d1c915fbc",
+      // url: "https://bsc-mainnet.infura.io/v3/a48f9442af1a4c8da44b4fc26640e23d",
+      url: "https://virulent-dark-hill.bsc.quiknode.pro/01a06406e72abc1a563792bc3ae47c5c620299af",
       accounts: [PRIVATE_KEY],
       chainId: 56,
     },
